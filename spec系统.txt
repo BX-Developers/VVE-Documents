@@ -1,0 +1,23 @@
+	spec系统是结合<cube格式>，使用<spec格式>来组织<spec函数>，对载具特殊行为进行编程的系统。本条目列举几个有代表性的编程案例。
+
+引擎发动时播放声音：
+data modify storage math:io input.cubes set value [{uvw:[0.0d,0.9d,0.0d],tags:["body"],cmd:2031010}]
+data modify storage math:io input.specs set value {cube:"body",actions:[{play_sound:"engine_2",T:3,condition:"speed_up"}]}
+
+撞击方块时一次性触发：
+data modify storage math:io input.specs set value [{cube:"vehicle",actions:[]}]
+data modify storage math:io input.specs[0].actions append value {tag_add:0,play_sound:"hit",conditions:["hit_on_block","not_vehicle_T0"]}
+data modify storage math:io input.specs[0].actions append value {tag_rmv:0,conditions:["not_hit_on_block","vehicle_T0"]}
+
+右键开门:
+data modify storage math:io input.cubes set value [{seat_type:5,uvw:[-1.2d,0.8d,0.5d],rc_tag:"rc_0"}]
+data modify storage math:io input.cubes append value {cmd:2033006,uvw:[-1.11d,1.39d,0.55d],tags:["right_door"]}
+data modify storage math:io input.specs set value {cube:"right_door",actions:[]}
+data modify storage math:io input.specs[0].actions append value {set_pos:[-1.11d,1.39d,0.55d],tag_rmv:0,conditions:["vehicle_T0","rc_0"],play_sound:"door_close0"}
+data modify storage math:io input.specs[0].actions append value {set_pos:[-1.36d,1.39d,-0.7d],tag_add:0,conditions:["not_vehicle_T0","rc_0"]}],play_sound:"door_open0"}
+
+着陆10s播放声音
+data modify storage math:io input.specs set value [{cube:"vehicle",actions:[]}]
+data modify storage math:io input.specs[0].actions append value {time_set:{0:0},condition:"not_vehicle_OG"}
+data modify storage math:io input.specs[0].actions append value {time_add:{0:1},T:20,condition:"vehicle_OG"}
+data modify storage math:io input.specs[0].actions append value {value_conditions:{time_check:[10,10]},play_sound:"test"}

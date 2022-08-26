@@ -1,0 +1,24 @@
+	快捷栏UI是通过hotbar向玩家提供交互按键的系统。
+
+注册并编写快捷栏UI：
+	1.打开data/vehicles/functions/guis
+	2.确定UI序号n
+	3.新建n.mcfunction(下文称为gui函数)
+	4.打开items
+	5.新建n.mcfunction(下文称为item函数)
+	6.在gui函数中编写以下内容：
+		scoreboard players operation temp_id int = @s ctrl_vehicle
+		execute as @e[tag=vehicle] if score @s vehicle_id = temp_id int run tag @s add tmp
+		scoreboard players set @e[tag=tmp,limit=1] vehicle_state 1
+		scoreboard players set temp_re int 1
+
+
+
+		execute if score temp_re int matches 0 run function vehicles:guis/items/n
+		tag @e remove tmp
+	7.在item函数中编写以下内容：
+		clear @s #vehicles:all{vehicle_ui:1b}
+		function vehicles:guis/drop_hotbar
+	8.每次添加一个按钮都在item函数中做好快捷栏重置，在gui函数中做好按键检测和重置判断。
+	  需要重置快捷栏的时候执行scoreboard players set temp_re int 0
+	9.按钮实现功能的细节参考1号示例UI

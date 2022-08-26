@@ -1,0 +1,19 @@
+	vve对粒子也进行了NBT化，方便数据管理。
+
+注册并编写自定义粒子：
+
+1.首先确定粒子id字符串的长度n，例如"flame"的长度为5，n仅支持1到16。
+
+2.打开data/vehicles/functions/spec/particles/length_n.mcfunction
+
+3.添加如下命令：
+	execute if data storage math:io {temp_s:"%粒子id%"} run function vehicles:spec/particles/lib/%粒子id%
+
+4.打开data/vehicles/functions/spec/particles/lib，创建%粒子id%.mcfunction，在里面编写生成粒子命令即可。
+
+5.粒子支持方向参数，例如向前发射的火焰粒子：
+	execute if data storage math:io {temp_s:"flame_fow"} run particle flame ~ ~ ~ ^ ^ ^10000000000 0.0000000001 0 force @a
+
+PS:
+	对于原版模组开发者，如果不方便直接修改length_n.mcfunction，也可以在自己的数据包内编写新的length_n.mcfunction，
+然后将其打上#vehicles:spec/particles/length_n函数标签即可。

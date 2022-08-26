@@ -1,0 +1,16 @@
+	vve对音效素材也进行了NBT化，方便数据管理。
+
+注册并编写自定义音效：
+
+1.首先确定音效id字符串的长度n，例如"engine_0"的长度为8，n仅支持1到16。
+
+2.打开data/vehicles/functions/spec/sounds/length_n.mcfunction
+
+3.添加如下命令：
+	execute if data storage math:io {temp_s:"%音效id%"} run function vehicles:spec/sounds/lib/%音效id%
+
+4.打开data/vehicles/functions/spec/sounds/lib，创建%音效id%.mcfunction，在里面编写播放声音命令即可。
+
+PS:
+	对于原版模组开发者，如果不方便直接修改length_n.mcfunction，也可以在自己的数据包内编写新的length_n.mcfunction，
+然后将其打上#vehicles:spec/sounds/length_n函数标签即可。

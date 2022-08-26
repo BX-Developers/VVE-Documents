@@ -1,0 +1,128 @@
+	spec函数是以NBT形式表示的，在<spec系统>中用于处理载具特殊行为的函数，其格式为：spec函数名:函数参数值。有些spec函数只对特定类型的cube生效。
+
+注册并编写自定义spec函数：
+	spec函数位于data/vehicles/functions/spec下，spec函数的调用位于data/vehicles/functions/specs_check下。
+
+1.编写自定义spec函数，首先应确定该函数的操作对象。如果操作对象为cube的uaec，请打开specs_check/spec_sloop;如果
+操作对象为cube的功能实体，请打开specs_check/spec_stmp;如果操作对象为载具根实体，请打开specs_check/spec_tmp。
+
+2.确定自定义spec函数名，在上一步打开的mcfunction的首行添加以下命令：
+execute if data storage math:io temp_list[0].$spec函数名$ run function vehicles:spec/$spec函数名$。
+
+3.在data/vehicles/functions/spec下创建$spec函数名$.mcfunction，并编写对应的spec功能。
+
+
+自带spec函数列表：
+----------------------------------------------------
+cmd:[int,int]
+限制:模型cube
+描述:让该cube的胡萝卜钓竿模型CustomModelData在cmd[0]到cmd[1]
+     之间递增变化。
+示例:{cube:"wheel",actions:[{cmd:[0,2]}]}
+	这个例子中，wheel块的功能实体CustomModelData
+	随tick依次为：0,1,2,0,1,2......
+----------------------------------------------------
+-cmd:[int,int]
+限制:模型cube
+描述:让该cube的胡萝卜钓竿模型CustomModelData在-cmd[0]到-cmd[1]
+     之间递减变化。
+示例:{cube:"wheel",actions:[{-cmd:[0,2]}]}
+	这个例子中，wheel块的功能实体CustomModelData
+	随tick依次为：2,1,0,2,1,0......
+----------------------------------------------------
+add_cmd:int
+限制:模型cube
+描述:让该cube的胡萝卜钓竿模型CustomModelData增加int。
+示例:{cube:"wheel",actions:[{add_cmd:1}]}
+	这个例子中，wheel块的功能实体CustomModelData
+	随tick依次为：0,1,2,3,4,5......
+----------------------------------------------------
+set_cmd:int
+限制:模型cube
+描述:让该cube的胡萝卜钓竿模型CustomModelData变为int。
+示例:{cube:"wheel",actions:[{set_cmd:2}]}
+	这个例子中，wheel块的功能实体CustomModelData
+	随tick依次为：2,2,2,2,2,2......
+----------------------------------------------------
+add_phi:double
+限制:可转动cube
+描述:让该cube绕轴旋转double
+示例:{cube:"propeller",actions:[{add_phi:25.0d}]}
+	这个例子中，propeller块以25°/gt的角速度旋转。
+----------------------------------------------------
+set_phi:double
+限制:可转动cube
+描述:把该cube横滚角设置为double
+示例:{cube:"propeller",actions:[{set_phi:0.0d}]}
+	这个例子中，propeller块的横滚角始终为0°，不进行旋转。
+----------------------------------------------------
+phiv_to:[double,double]
+限制:可转动cube
+描述:让该cube开始加速/减速旋转，直到角速度变为phiv_to[0]，
+     phiv_to[1]为正值且大于1，为影响变速快慢的惯性。
+示例:{cube:"propeller",actions:[{phiv_to:[25.0d,30.0d]}]}
+	这个例子中，propeller块以30的惯性质量，加速到25°/gt的角速度。
+----------------------------------------------------
+add_rot0:double
+限制:可转动cube
+描述:为该cube相对于载具的局部视角坐标的水平角度增加double。
+示例:{cube:"what",actions:[{T:10,add_rot0:90.0d}]}
+	这个例子中，what块的的朝向一会向前，一会向左，一会向后，一会向右。
+----------------------------------------------------
+add_rot1:double
+限制:可转动cube
+描述:为该cube相对于载具的局部视角坐标的竖直角度增加double。
+示例:{cube:"what",actions:[{T:10,add_rot1:90.0d}]}
+	这个例子中，what块的的朝向一会向前，一会向上，一会向后，一会向下。
+----------------------------------------------------
+set_rot:[double,double]
+限制:可转动cube
+描述:将该cube相对于载具的局部视角坐标设置为set_rot[]。
+示例:{cube:"what",actions:[{set_rot:[0.0d,0.0d]}]}
+	这个例子中，what块的朝向始终跟随载具朝向，指向前。
+----------------------------------------------------
+set_pos:[double,double,double]
+限制:非vehicle
+描述:将该cube相对于载具的局部坐标设置为set_pos[]。
+示例:{cube:"door",actions:[{set_pos:[1.0d,0.0d,0.0d]}]}
+	这个例子中，door块的位置变为了载具左边1格的位置。
+----------------------------------------------------
+tag_add:int
+限制:无
+描述:int在0到9之间，分别可以为载具根实体添加vehicle_T0,
+     vehicle_T1......vehicle_T9的状态标签,并移除其反标签。
+示例:{cube:"whatever",actions:[{tag_add:0}]}
+	这个例子中，载具根实体拥有vehicle_T0，没有not_vehicle_T0。
+----------------------------------------------------
+tag_rmv:int
+限制:无
+描述:int在0到9之间，分别可以为载具根实体移除vehicle_T0,
+     vehicle_T1......vehicle_T9的状态标签,并添加其反标签。
+示例:{cube:"whatever",actions:[{tag_rmv:0}]}
+	这个例子中，载具根实体没有vehicle_T0，拥有not_vehicle_T0。
+----------------------------------------------------
+time_add:{0:int,1:int.....9:int}
+限制:无
+描述:调用0到9号计时器，为载具根实体计时。
+示例:{cube:"whatever",actions:[{time_add:{0:1,2:3}}]}
+	这个例子中，载具根实体的0号计时器的值为0,1,2......，2号计时器的值为0,3,6......
+----------------------------------------------------
+time_set:{0:int,1:int......9:int}
+限制:无
+描述:调用0到9号计时器，重置载具根实体的计时。
+示例:{cube:"whatever",actions:[{time_set:{0:0,1:1}}]}
+	这个例子中，载具根实体的0号计时器的值为0，1号计时器的值为1。
+----------------------------------------------------
+play_sound:string
+限制:无
+描述:在该cube位置播放id为string的<音效素材>。
+示例:{cube:"propeller",actions:[{T:20,playsound:"bca7"}]}
+	这个例子中，propeller块每秒会播放"bca7"音效。
+----------------------------------------------------
+particle:{id:string,uvw:[double,double,double],rot:[double,double]}
+限制:无
+描述:在相对于载具的局部坐标为uvw[]的位置，生成id为string的<粒子>，其中rot为可选填项，
+     用于把相对于载具的局部视角坐标作为参数传入粒子。
+示例:{cube:"whatever",actions:[{particle:{id:"flame_fow",uvw:[0.0d,0.0d,1.0d],rot:[0.0d,0.0d]}}]}
+	这个例子中，载具会在前方1格位置生成向前运动的火焰粒子。
+----------------------------------------------------

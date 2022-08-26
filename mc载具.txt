@@ -1,0 +1,84 @@
+	vve对mc中的载具进行了自己的定义。一辆载具通过vehicles:_spawn函数解析<数据模板>生成，并由以下部分构成：
+玩家、一个根实体、多个cube、引导文本。为理解这些部分，需要了解以下概念：
+
+玩家：
+	正在骑乘载具的玩家vehicle_state分数为1。玩家坐上载具的一瞬间，如果该载具拥有快捷栏UI，玩家快捷栏原本的物品
+会被转移到背包其它位置(背包充足时)，或以掉落物形式掉落(背包已满时)。玩家可以向载具根实体发送<控制信号>。
+
+根实体：
+	根实体是整辆载具的代表实体。根实体的Pos即为载具的坐标，根实体的Rotation即为载具的朝向，根实体的roll记分板
+分数即为载具的横滚角，根实体的记分板vehicle_vr0、vehicle_vr1、vehicle_sp分数即为载具的速度，根实体的记分板rotatio
+n_u、rotation_v、rotation_w分数即为载具的角速度。载具的众多属性数据也以记分板或nbt的形式储存在根实体上，详情请查看
+vehicles:spawn/set函数。刚生成的载具根实体可以使用tag=vehicle_nsp选中。生成2tick以后的载具根实体可以使用tag=vehicl
+e来选中。正在被骑乘的载具的根实体vehicle_state分数大于等于1。
+
+cube：
+	cube是实现载具效果的部件，由两个实体构成：uaec实体与功能实体。uaec用于更新功能实体的模型，使其与载具同步。
+uaec的Pos即为cube的坐标，以局部坐标的形式储存在uaec的vehicle_u、vehicle_v、vehicle_w记分板上。功能实体骑乘在uaec
+实体上，用于实现各种功能，如：显示胡萝卜钓竿模型(盔甲架)、提供座椅(马或矿车)、提供运输空间(箱子矿车)、提供站立空间
+(潜影贝)、提供右键检测(村民)。对于一般cube，其朝向和横滚角与根实体同步。对于可转动cube，其朝向以局部视角坐标的形式
+储存在功能实体的vehicle_r0、vehicle_r1记分板上，其横滚角储存在功能实体的roll记分板上。cube的uaec可以使用tag=vehicl
+e_cube来选中。cube的功能实体可以使用tag=vehicle_dsp来选中。
+
+引导文本：
+	引导文本是载具在静止状态下，在座椅上生成的实体，用以显示文本，提示玩家右键进入载具。可以使用tag=vehicle_lead
+来选中引导文本。
+
+vehicle_entity标签：
+	可以使用tag=vehicle_entity来选中所有与载具相关的实体(根实体、uaec、功能实体、引导文本)。
+
+result标签：
+	result标签用于指代刚被生成的一辆载具的根实体。
+	示例：
+		#导入示例载具模板库(只需执行一次)
+		function vehicles:_class
+
+		#生成载具
+		data modify storage math:io input set from storage math:class vehicles[{id:"first_car"}]
+		function vehicles:_spawn
+		execute at @e[tag=result,limit=1] run setblock ~ ~2 ~ diamond_block
+
+	这个例子可以生成一辆示例车，并在其头顶放置一块钻石块。
+
+上级实体与附属实体：
+	上级实体与附属实体是一种实体间的关系。上级实体拥有唯一确定的vehicle_id分数，与它的附属实体的int分数相同
+(附属实体可以有多个)。玩家骑乘载具时，载具根实体是玩家的附属实体。载具所有cube的uaec和功能实体都是载具根实体的附
+属实体。引导文本是载具根实体的附属实体。
+	示例1：
+		#以载具根实体为执行者
+		scoreboard players operation temp int = @s vehicle_id
+		execute as @e[tag=vehicle_dsp] if score @s int = temp int run tag @s add tmp
+		kill @e[tag=tmp,limit=1,sort=random]
+		tag @e remove tmp
+
+	这个例子可以随机清除该载具的一个功能实体。
+
+	示例2：
+		#以骑乘载具的玩家为执行者
+		scoreboard players operation temp int = @s vehicle_id
+		execute as @e[tag=vehicle] if score @s int = temp int run tag @s add tmp
+		execute positioned 85 93 45 as @e[tag=tmp,limit=1] rotated as @s run function vehicles:_tp
+		tag @e remove tmp
+
+	这个例子可以将玩家骑乘的载具传送到坐标85 93 45的位置，并保持朝向不变。
+
+配对实体：
+	配对实体是另外一种实体间的关系。一对配对实体拥有相同的且唯一确定的vehicle_cpid分数。同属于一个cube的
+uaec和功能实体是配对实体关系。
+	示例：
+		#以uaec为执行者
+		scoreboard players operation temp int = @s vehicle_cpid
+		execute as @e[tag=vehicle_dsp] if score @s vehicle_cpid = temp int run tag @s add tmp
+		kill @e[tag=tmp,limit=1]
+		tag @e remove tmp
+
+	这个例子可以清除改uaec所在cube的功能实体。
+
+示例：
+	#以骑乘载具的玩家为执行者
+	scoreboard players operation temp int = @s vehicle_id
+	execute as @e[tag=vehicle] if score @s int = temp int run scoreboard players operation temp int = @s vehicle_id
+	execute as @e[tag=vehicle_cube,tag=propeller] if score @s int = temp int run scoreboard players operation temp int = @s vehicle_cpid
+	execute as @e[tag=vehicle_dsp] if score @s vehicle_cpid = temp int run kill @s
+
+这个例子可以清除玩家骑乘载具的propeller块的功能实体。(propeller是自定义标签)

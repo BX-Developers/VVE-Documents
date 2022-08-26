@@ -1,0 +1,17 @@
+	vve附带了四种示例载具，可以打开函数vehicles:_class查看它们的数据。
+
+生成命令：
+	#导入示例载具数据库(只需执行一次)
+	function vehicles:_class
+
+	#生成载具
+	data modify storage math:io input set from storage math:class vehicles[{id:"$载具型号$"}]
+	function vehicles:_spawn
+
+	其中载具型号可写：first_car、first_plane、first_hc、first_boat
+
+演示视频：
+		[斜面测试]
+		[飞机]
+		[直升机]
+		[船]

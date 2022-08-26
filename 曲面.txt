@@ -1,0 +1,27 @@
+	曲面在vve中被定义为一个实体，它们需要带有标签surface_entity，还需要在记分板surface_id上的分数表示自己的曲
+面函数id，这种实体称为地面实体。
+
+生成1号示例曲面：
+	summon marker ~ ~ ~ {Tags:["tmp","surface_entity"]}
+	scoreboard players set @e[tag=tmp,limit=1] surface_id 1
+	tag @e remove tmp
+
+	1号示例曲面是水平面圆心为地面实体Pos，水平面圆半径为64格，半径为128格，圆心角为60°的球冠。
+
+曲面机制：
+	1.载具的四个着陆点会高频寻找半径64格以内距离最近的一个地面实体，并将自己的坐标传入曲面函数，进行曲面计算
+	2.曲面有两个要素：管辖范围、曲面方程
+	3.曲面函数会首先计算输入坐标是否在自己的管辖范围内
+	4.若处于管辖范围，曲面方程会根据输入坐标计算曲面的表面，把着陆点拉升上去，对碰撞点则返回1
+
+注册并编写曲面函数：
+	1.打开data/vehicles/functions/gravity/surface
+	2.确定需要注册的函数id为n
+	3.新建n.mcfunction，进行编写即可
+
+	编写需要注意的地方：
+		1.函数的输入为执行坐标
+		2.需要判断该坐标是否位于管辖范围内(如1号示例曲面会判断y坐标与球面表面距离)
+		3.对于着陆有2个返回：把 @e[tag=math_marker,limit=1] 传送到曲面的表面
+				     scoreboard players set surface int 1 (将会立即进行着陆计算)
+		4.对于碰撞有1个返回：scoreboard players set result int 1
